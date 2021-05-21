@@ -35,13 +35,18 @@ class Comensal(threading.Thread):
             while platosDisponibles == 0:
                 semaforoCocinero.release()
                 semaforoPlato.acquire()
-            platosDisponibles -= 1
-            logging.info(f'¡Qué rico! Quedan {platosDisponibles} platos')
+            semaforoComensal.acquire()
+            try:
+                platosDisponibles -= 1
+                logging.info(f'¡Qué rico! Quedan {platosDisponibles} platos')
+            finally:
+                semaforoComensal.release()
         finally:
             semaforoPlato.release()
 
-semaforoPlato = threading.Semaphore(2)
+semaforoPlato = threading.Semaphore(1)
 semaforoCocinero = threading.Semaphore(0)
+semaforoComensal = threading.Semaphore(1)
 
 platosDisponibles = 3
 
